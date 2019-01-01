@@ -5,4 +5,4 @@ This project is for parsing data at specific offset of received RS232 data from 
 Tested on GNU/Linux with amd64.
     
 ## Version
-1.0.0-rc
+1.0.0
