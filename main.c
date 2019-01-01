@@ -239,7 +239,6 @@ int main(int argc, char** argv)
 	uint32_t recv_cnt;
 	int16_t speed_data;
 	while ((recv_cnt = read(fd_serial, buffer, BUFFER_SIZE)) > 0) {
-		printf("%d\n", recv_cnt);
 		speed_data = find_speed_data_pattern(recv_cnt);
 		speed_data == INDEX_ERR ? puts("No valid data."): printf("%d km/h\n", speed_data);
 		sleep(1);
