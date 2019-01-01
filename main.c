@@ -19,8 +19,8 @@
 #define DATA_OFFSET 3
 #define CHECKSUM_OFFSET 4
 #define HEADER 0x23
-#define LEN 0x02 // len + PID actually
 #define PID 0x01
+#define LEN_BYTE 0x22 // higher 4 bits are protocol, which is CAN_ISO-15031, and the lower 4 bits are (PID + LEN)
 
 //#define DEBUG
 
@@ -144,10 +144,10 @@ int set_parity(int fd,int databits,int stopbits,int parity)
 
       options.c_cc[VTIME] = 15; // 15 seconds
 
-      options.c_cc[VMIN] = 0;
+      options.c_cc[VMIN] = 64;
 
-      //options.c_lflag = 0;
-      cfmakeraw(&options);
+      options.c_lflag = 0;
+      //cfmakeraw(&options); this func causes options.c_cc[VMIN] = 0, which then lead to always has "no valid data" at startup
       tcflush(fd,TCIFLUSH); /* Update the options and do it *NOW* */
 
       if (tcsetattr(fd,TCSANOW,&options) != 0) {
@@ -186,7 +186,7 @@ int16_t find_speed_data_pattern(uint16_t size)
 varifying:		correctness++;
 			switch (correctness) {
 				case 1:
-					if (buffer[base + LEN_OFFSET] == LEN)
+					if (buffer[base + LEN_OFFSET] == LEN_BYTE)
 						goto varifying; // LEN matched
 					else
 						goto start_over;
@@ -197,7 +197,7 @@ varifying:		correctness++;
 						goto start_over;
 				case 3:
 					if (buffer[base + CHECKSUM_OFFSET] \
-					== ((PID + buffer[DATA_OFFSET]) % 0xff))
+					== ((PID + buffer[base + DATA_OFFSET]) % 256))
 						return buffer[base + DATA_OFFSET]; // pass, return speed_data
 					else
 						goto start_over;
@@ -239,6 +239,7 @@ int main(int argc, char** argv)
 	uint32_t recv_cnt;
 	int16_t speed_data;
 	while ((recv_cnt = read(fd_serial, buffer, BUFFER_SIZE)) > 0) {
+		printf("%d\n", recv_cnt);
 		speed_data = find_speed_data_pattern(recv_cnt);
 		speed_data == INDEX_ERR ? puts("No valid data."): printf("%d km/h\n", speed_data);
 		sleep(1);
