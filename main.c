@@ -214,8 +214,8 @@ start_over:		correctness = 0;
 int main(int argc, char** argv)
 {
 	if (argc != PROPER_ARGU_CNT) {
-		puts("Too many or too few arguments!");
-		puts("Should be `./executable {FILENAME}`, whereas should have 2 args.");
+		puts("Too many or too few arguments!\n");
+		puts("Usage: ./a.out <DEVICE_FILENAME>");
 		exit(ARGUS_ERR);
 	}
 
@@ -225,7 +225,7 @@ int main(int argc, char** argv)
       
 	if (fd_serial == -1) {
 		puts("Device not exist or currently not available!");
-		puts("Do you forget to execute the program with `sudo` ?");
+		puts("Or, do you forgot to execute the program with sudo?");
 		exit(FILE_ERR);
 	}
 
